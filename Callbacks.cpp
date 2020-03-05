@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <GL/glut.h>
-#include "Callbacks.h"
+#include "Callbacks.hpp"
 
 /* Keyboard callback function */
 void keyboard(unsigned char key, int x, int y) {
