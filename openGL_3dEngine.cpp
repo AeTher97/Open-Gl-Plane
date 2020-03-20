@@ -25,7 +25,7 @@ bool oknoFullScreen = false;
 GLint oknoLewe = 1, oknoPrawe = 2;      // id okien stereo
 
 // Opcje projekcji stereo
-int stereoTryb = 3;
+int stereoTryb = 0;
 int stereoRozstawOczu = 5;                // dystans miêdzy oczami
 int stereoPunktPatrzenia = 150;            // odleg³oœæ do punktu, na który patrz¹ oczy
 bool stereoIDRamki = false;
@@ -36,6 +36,9 @@ int pozycjaMyszyX;                        // na ekranie
 int pozycjaMyszyY;
 double kameraX;
 double kameraY;
+
+#include <math.h>       /* acos */
+
 double kameraZ;
 double kameraPunktY;
 double kameraPredkoscPunktY;
@@ -43,8 +46,21 @@ double kameraPredkosc;
 bool kameraPrzemieszczanie;        // przemieszczanie lub rozgl¹danie
 double kameraKat;                // kat patrzenia
 double kameraPredkoscObrotu;
+
+
+double slonceX = 0;
+double slonceY = 0;
+double slonceZ = 0;
+
+
+double ksiezycX = 0;
+double ksiezycY = 0;
+double ksiezycZ = 0;
+
+
 #define MIN_DYSTANS 0.5            // minimalny dystans od brzegu obszaru ograniczenia kamery
 double obszarKamery = 0;
+GLUquadricObj *obiekt;
 
 #define _DEFINICJE
 
@@ -101,6 +117,10 @@ float krzaki[12][4] = {{-181, 43, -64, 100},
                        {101,  -8, 110, 146}};
 
 int animacjaLisci = 0;
+int animacjaSlonca = 0;
+
+float mnoznik = 3;
+
 float posx = 0;
 float posy = 0;
 
@@ -327,41 +347,6 @@ void KlawiszSpecjalnyWcisniety(GLint key, int x, int y) {
 
 
 /******************************************************/
-
-
-
-void windowInit() {
-    glClearColor(0.2, 0.2, 1.0, 0.0);
-    glShadeModel(GL_SMOOTH);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_LIGHTING);
-    GLfloat ambient[4] = {0.3, 0.3, 0.3, 1};
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-
-    GLfloat diffuse[4] = {0.9, 0.9, 0.9, 1};
-    GLfloat specular[4] = {0.9, 0.9, 0.9, 1};
-    GLfloat position[4] = {30, 30, -30, 1};
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
-    glEnable(GL_LIGHT0);  // œwiatlo sceny
-
-    /*******************MGLA**************************/
-
-    float fogColor[4] = {0.8f, 0.8f, 0.8f, 0.1f};
-    glFogi(GL_FOG_MODE, GL_EXP2); // [GL_EXP, GL_EXP2, GL_LINEAR ]
-    glFogfv(GL_FOG_COLOR, fogColor);
-    glFogf(GL_FOG_DENSITY, 0.01f);
-    glFogf(GL_FOG_START, 0.0f);
-    glFogf(GL_FOG_END, 200.0f);
-    glEnable(GL_FOG);
-
-
-}
-
 void rozmiar(int width, int height) {
     if (width == 0) width++;
     if (width == 0) width++;
@@ -388,13 +373,12 @@ void rozmiarPrawe(int width, int height) {
     rozmiar(width, height);
 }
 
-/** ZARZADANIE SKLADEM MODELI 3DS **/
-
 struct model_w_skladzie {
     char *filename;
     model3DS *model;
     struct model_w_skladzie *wsk;
 };
+
 struct model_w_skladzie *sklad_modeli = NULL;
 
 void dodajModel(model3DS *_model, char *file_name) {
@@ -462,6 +446,212 @@ void ladujModele() {
         } while (FindNextFile(fh, fd));
 }
 
+void windowInit() {
+    glViewport(0, 0, oknoSzerkosc, oknoWysokosc); // O
+
+    glClearColor(0.2, 0.2, 1.0, 0.0);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+    obiekt = gluNewQuadric();
+    gluQuadricOrientation(obiekt, GLU_OUTSIDE);
+    //gluQuadricDrawStyle (obiekt, GLU_FILL);
+
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
+
+
+
+    /*******************!SZABLON!**************************/
+
+
+}
+
+/** ZARZADANIE SKLADEM MODELI 3DS **/
+
+
+void slonce() {
+    GLfloat ambientLight0[4];
+    GLfloat diffuseLight0[4];
+    GLfloat specular0[4];
+    GLfloat lightPos0[4];
+
+
+    double intensity = cos((float) animacjaSlonca / 100 / mnoznik);
+    double sunIntensity = std::max(intensity, 0.00);
+
+
+    ambientLight0[0] = 0.3f * sunIntensity;
+    ambientLight0[1] = 0.3f * sunIntensity;
+    ambientLight0[2] = 0.3f * sunIntensity;
+    ambientLight0[3] = 1.0f;
+
+    double redIntensity = sunIntensity;
+
+    if (sunIntensity < 0.8) {
+        redIntensity = 1 - 2 * abs(std::min(intensity, 0.00));
+    }
+    std::cout << "red";
+    std::cout << redIntensity;
+    std::cout << "\n";
+    diffuseLight0[0] = 1.0f * redIntensity;
+    diffuseLight0[1] = 1.0f * sunIntensity;
+    diffuseLight0[2] = 1.0f * sunIntensity;
+    diffuseLight0[3] = 1.0f;
+
+    specular0[0] = 0.4f;
+    specular0[1] = 1.0f;
+    specular0[2] = 0.4f;
+    specular0[3] = 1.0f;
+
+    lightPos0[0] = slonceX;
+    lightPos0[1] = slonceY;
+    lightPos0[2] = slonceZ;
+    lightPos0[3] = 1.0f;
+
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight0);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight0);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
+    glEnable(GL_LIGHT0);
+
+}
+
+
+void latarnia() {
+
+    GLfloat ambientLight1[4];
+    GLfloat diffuseLight1[4];
+    GLfloat spotDirectionLight1[4];
+
+    GLfloat specular1[4];
+    GLfloat lightPos1[4];
+
+    ambientLight1[0] = 0.0f;
+    ambientLight1[1] = 0.0f;
+    ambientLight1[2] = 0.0f;
+    ambientLight1[3] = 1.0f;
+
+    double intensity = cos((float) animacjaSlonca / 100 / mnoznik);
+    double lampIntensity = 0;
+    if (intensity < 0.2) {
+        lampIntensity = 1;
+    }
+    diffuseLight1[0] = 2.0f * lampIntensity;
+    diffuseLight1[1] = 2.0f * lampIntensity;
+    diffuseLight1[2] = 1.6f * lampIntensity;
+    diffuseLight1[3] = 1.0f;
+
+    specular1[0] = 0.4f * lampIntensity;
+    specular1[1] = 1.0f * lampIntensity;
+    specular1[2] = 0.4f * lampIntensity;
+    specular1[3] = 1.0f;
+
+    lightPos1[0] = -20.0f;
+    lightPos1[1] = 30.0f;
+    lightPos1[2] = 120.0f;
+    lightPos1[3] = 1.0f;
+
+    spotDirectionLight1[0] = 0.0f;
+    spotDirectionLight1[1] = -90.0f;
+    spotDirectionLight1[2] = 0.0f;
+    spotDirectionLight1[3] = 1.0f;
+
+    glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLight1);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLight1);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, specular1);
+    glLightfv(GL_LIGHT1, GL_POSITION, lightPos1);
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 60.0);
+    glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 50.0);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotDirectionLight1);
+
+    glEnable(GL_LIGHT1);
+}
+
+
+void latarnia2() {
+
+    GLfloat ambientLight1[4];
+    GLfloat diffuseLight1[4];
+    GLfloat spotDirectionLight1[4];
+
+    GLfloat specular1[4];
+    GLfloat lightPos1[4];
+
+    ambientLight1[0] = 0.0f;
+    ambientLight1[1] = 0.0f;
+    ambientLight1[2] = 0.0f;
+    ambientLight1[3] = 1.0f;
+
+    double intensity = cos((float) animacjaSlonca / 100 / mnoznik);
+    double lampIntensity = 0;
+    if (intensity < 0.2) {
+        lampIntensity = 1;
+    }
+    diffuseLight1[0] = 2.0f * lampIntensity;
+    diffuseLight1[1] = 2.0f * lampIntensity;
+    diffuseLight1[2] = 1.6f * lampIntensity;
+    diffuseLight1[3] = 1.0f;
+
+    specular1[0] = 0.4f * lampIntensity;
+    specular1[1] = 1.0f * lampIntensity;
+    specular1[2] = 0.4f * lampIntensity;
+    specular1[3] = 1.0f;
+
+    lightPos1[0] = -20.0f;
+    lightPos1[1] = 30.0f;
+    lightPos1[2] = -120.0f;
+    lightPos1[3] = 1.0f;
+
+    spotDirectionLight1[0] = 0.0f;
+    spotDirectionLight1[1] = -90.0f;
+    spotDirectionLight1[2] = 0.0f;
+    spotDirectionLight1[3] = 1.0f;
+
+    glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight1);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight1);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, specular1);
+    glLightfv(GL_LIGHT2, GL_POSITION, lightPos1);
+    glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 60.0);
+    glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 50.0);
+    glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spotDirectionLight1);
+
+    glEnable(GL_LIGHT2);
+}
+
+
+void mglafunc() {
+    double intensity = cos((float) animacjaSlonca / 100 / mnoznik);
+
+    float fogColor[4] = {0.8f, 0.8f, 0.8f, 0.1f};
+    glFogi(GL_FOG_MODE, GL_EXP2); // [GL_EXP, GL_EXP2, GL_LINEAR ]
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogf(GL_FOG_DENSITY, 0.005f * intensity);
+    glFogf(GL_FOG_START, 250.0f);
+    glFogf(GL_FOG_END, 300.0f);
+    glEnable(GL_FOG);
+
+}
+
+
+void config() {
+    oknoFullScreen = false;
+
+
+    ustalObszar(500);
+    rejestrujPrzeszkode(-200, -200, -147, 200);    // lewy brzeg
+    rejestrujPrzeszkode(132, -200, 200, 200);        // prawy  brzeg
+    rejestrujPrzeszkode(-200, -130, 200, -200);    // przedni brzeg
+    rejestrujPrzeszkode(-200, 157, 200, 200);        // tylny brzeg
+    rejestrujPrzeszkode(-101, -90, -26, 200);        // lewa wyspa
+    rejestrujPrzeszkode(13, -200, 90, 132);        // prawa wyspa
+
+
+}
+
 /**********************************************************
  		RYSOWANIE TRESCI RAMKI
  *********************************************************/
@@ -469,25 +659,11 @@ void ladujModele() {
 
 void draw() {
 
-
-    // TEREN
-    // Tekstura podloza jest zapisana w pliku "data/podloze.bmp", definiowana bezpoœrednio w 3ds.
-    // Wymagany format pliku: bmp, 24 bity na pixel.
-
-    //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
     glTranslatef(0, 1, 0);
-    rysujModel("teren"); // malowanie pod³o¿a
-    rysujModel("niebo"); // malowanie nieba
-    glPopMatrix();
+    rysujModel("teren");
+    rysujModel("niebo");
 
-
-    // MODELE 3ds:
-    // Modele 3ds znajdujace sie w katalogu /data s¹ autoamtycznie ladowane i rejestrowane pod nazwami zbieznymi z nazwami plikow
-    // Aby narysowaæ model nalezy wywo³aæ funkcjê: rysujModel ("nazwa_modelu");
-    // Nazwa_modelu mo¿e byæ podana literemi du¿ymi lub ma³ymi, z rozszerzeniem pliku lub bez.
-
-    // przyklad:
 
     glPushMatrix();
     glTranslatef(10, -8, -43);
@@ -495,12 +671,6 @@ void draw() {
     rysujModel("lawka");
 
     glPopMatrix();
-    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
-
-
-
-
 
 
     glPushMatrix();
@@ -508,6 +678,13 @@ void draw() {
     glRotatef(90, 0, 1, 0);
     rysujModel("latarnia");
     glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-25, -7, -120);
+    glRotatef(90, 0, 1, 0);
+    rysujModel("latarnia");
+    glPopMatrix();
+
 
     glPushMatrix();
     glTranslatef(120, -5.5, -103);
@@ -522,7 +699,72 @@ void draw() {
     glPopMatrix();
 
 
-    // Tu (na koñcu) rysowanie obiektów BLEND
+    //okrag obiegu slonca i ksiezyca
+    float radius = 300;
+
+    //obliczanie pozycji slonca i ksiezyca
+    ksiezycX = -std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
+    ksiezycY = -std::cos((float) animacjaSlonca / 100 / mnoznik) * radius;
+    ksiezycZ = std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
+    slonceX = std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
+    slonceY = std::cos((float) animacjaSlonca / 100 / mnoznik) * radius;
+    slonceZ = std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
+
+    glPushMatrix();
+    animacjaSlonca = ((++animacjaSlonca) % (int) (628 * mnoznik));
+
+    GLfloat yellow[4];
+
+    yellow[0] = 1.0f;
+    yellow[1] = 0.7f;
+    yellow[2] = 0.0f;
+    yellow[3] = 1.0f;
+
+    GLfloat blue[4];
+
+    blue[0] = 0.3f;
+    blue[1] = 0.3f;
+    blue[2] = 1.0f;
+    blue[3] = 1.0f;
+
+
+    GLfloat current[4];
+    glGetFloatv(GL_AMBIENT, current);
+
+    glTranslatef(slonceX, slonceY, slonceZ);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellow);
+    gluSphere(obiekt, 10, 50, 50);
+
+    glPopMatrix();
+
+    glPushMatrix();
+
+    glTranslatef(ksiezycX, ksiezycY, ksiezycZ);
+    glColor3f(0, 0, 1);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blue);
+
+    gluSphere(obiekt, 6, 50, 50);
+    glPopMatrix();
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, current);
+
+
+    glEnable(GL_LIGHTING);
+
+    //rysowanie slonnca ksiezyca i swiatla latarni
+    slonce();
+    latarnia();
+    latarnia2();
+    mglafunc();
+
+    for (int a = 0; a < 12; a++) {
+        glPushMatrix();
+        glTranslatef(drzewa1[a][0], drzewa1[a][1], drzewa1[a][2]);
+        glRotatef(drzewa1[a][3], 0, 1, 0);
+        rysujModel("drzewo1");
+        glPopMatrix();
+
+    }
+
 
     glPushMatrix();
     glEnable(GL_BLEND);
@@ -538,35 +780,15 @@ void draw() {
     glDisable(GL_BLEND);
     glPopMatrix();
 
-    /******************************************************/
-
 
 }
 
 void rysujRamke(bool prawa) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Kasowanie ekranu
     glLoadIdentity();
-    switch (stereoTryb) {
-        case 0: // zwykle mono
-            gluLookAt(kameraX, kameraY, kameraZ, kameraX + 100 * sin(kameraKat), 3 + kameraPunktY,
-                      kameraZ - 100 * cos(kameraKat), 0, 1, 0); // kamera
-            break;
-        case 1: // 3D-ready
-        case 2: // pelne stereo
-        case 3: // anaglyph
-            if (prawa) {            //  klatka prawa
-                float newKameraX = kameraX - stereoRozstawOczu / 2 * cos(kameraKat);
-                float newKameraZ = kameraZ - stereoRozstawOczu / 2 * sin(kameraKat);
-                gluLookAt(newKameraX, kameraY, newKameraZ, kameraX + 0.2 + stereoPunktPatrzenia * sin(kameraKat),
-                          3 + kameraPunktY, kameraZ - stereoPunktPatrzenia * cos(kameraKat), 0, 1, 0); // kamera
-            } else {                // klatka lewa
-                float newKameraX = kameraX + stereoRozstawOczu / 2 * cos(kameraKat);
-                float newKameraZ = kameraZ + stereoRozstawOczu / 2 * sin(kameraKat);
-                gluLookAt(newKameraX, kameraY, newKameraZ, kameraX + 0.2 + stereoPunktPatrzenia * sin(kameraKat),
-                          3 + kameraPunktY, kameraZ - stereoPunktPatrzenia * cos(kameraKat), 0, 1, 0); // kamera
-            }
-            break;
-    } //case
+
+    gluLookAt(kameraX, kameraY, kameraZ, kameraX + 100 * sin(kameraKat), 3 + kameraPunktY,
+              kameraZ - 100 * cos(kameraKat), 0, 1, 0); // kamera
 
 
     draw();
@@ -577,36 +799,10 @@ void rysujRamke(bool prawa) {
 
 
 void rysuj() {
-    switch (stereoTryb) {
-        case 0: // mono
-            rysujRamke(false);
-            glutSwapBuffers();
-            break;
-        case 1: // 3D-ready
-            stereoIDRamki = !stereoIDRamki;
-            rysujRamke(stereoIDRamki);
-            glutSwapBuffers();
-            break;
-        case 2: // pelne stereo
-            glutSetWindow(oknoLewe);
-            rysujRamke(false);
-            glutSetWindow(oknoPrawe);
-            rysujRamke(true);
-            glutSetWindow(oknoLewe);
-            glutSwapBuffers();            // Wyslanie na ekran (L+P) synchronizowane
-            glutSetWindow(oknoPrawe);
-            glutSwapBuffers();
-            break;
-        case 3: // anaglyph
-            glColorMask(true, false, false, false);
-            rysujRamke(true);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            glColorMask(false, true, true, false);
-            rysujRamke(false);
-            glColorMask(true, true, true, true);
-            glutSwapBuffers();
-    }
+    rysujRamke(false);
+    glutSwapBuffers();
 }
+
 
 void timer() {
     double kameraXTmp = kameraX + kameraPredkosc * sin(kameraKat);
@@ -626,33 +822,6 @@ void syncTimer(int ID) {
     glutTimerFunc(1, syncTimer, 10);
 }
 
-void config() {
-    oknoFullScreen = false;
-
-
-
-    // KONFIGURACJA	KAMERY
-
-
-    ustalObszar(500);                        // promien obszaru (kola), po jakim kamera mo¿e sie poruszaæ
-
-    // wymiary terenu: (-200,-200) - (200,200)
-
-    // Funkcja rejestruj¹ca przeszkody - kolejne parametry to X1, Z1, X2, Z2 prostok¹ta, który jest dodatkowo zabroniony dla kamery
-
-    // blokady terenu (sciany)
-    rejestrujPrzeszkode(-200, -200, -147, 200);    // lewy brzeg
-    rejestrujPrzeszkode(132, -200, 200, 200);        // prawy  brzeg
-    rejestrujPrzeszkode(-200, -130, 200, -200);    // przedni brzeg
-    rejestrujPrzeszkode(-200, 157, 200, 200);        // tylny brzeg
-
-    rejestrujPrzeszkode(-101, -90, -26, 200);        // lewa wyspa
-    rejestrujPrzeszkode(13, -200, 90, 132);        // prawa wyspa
-    // Funkcjê mo¿na wywo³ywac wielokrotnie dla ró¿nych obszarów
-
-
-}
-
 int main(int argc, char **argv) {
     config();
     if (argc > 1 && argv[1][0] == '-' &&
@@ -664,49 +833,22 @@ int main(int argc, char **argv) {
     }
     glutInit(&argc, argv);        // INIT - wszystkie funkcje obs³ugi okna i przetwzrzania zdarzeñ realizuje GLUT
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    if (stereoTryb == 2) {
-        glutInitWindowSize(oknoSzerkosc - 8, oknoWysokosc);
-        glutInitWindowPosition(0, 0);
-        oknoLewe = glutCreateWindow("Lewe");  // ==1
-        HWND hwnd = FindWindow(NULL, "Lewe");
-        SetWindowLong(hwnd, GWL_STYLE, WS_BORDER | WS_MAXIMIZE);
-        glutSetWindow(oknoLewe);
-        windowInit();
-        glutReshapeFunc(rozmiarLewe);                        // def. obs³ugi zdarzenia resize (GLUT)
-        glutKeyboardFunc(KlawiszKlawiaturyWcisniety);        // def. obs³ugi klawiatury
-        glutSpecialFunc(KlawiszSpecjalnyWcisniety);        // def. obs³ugi klawiatury (klawisze specjalne)
-        glutMouseFunc(PrzyciskMyszyWcisniety);            // def. obs³ugi zdarzenia przycisku myszy (GLUT)
-        glutMotionFunc(RuchKursoraMyszy);                    // def. obs³ugi zdarzenia ruchu myszy (GLUT)
-        glutDisplayFunc(rysuj);                                // def. funkcji rysuj¹cej
-        glutInitWindowSize(oknoSzerkosc - 8, oknoWysokosc);
-        glutInitWindowPosition(oknoSzerkosc + 4, 0);
-        oknoPrawe = glutCreateWindow("Prawe"); // ==2
-        glutSetWindow(oknoPrawe);
-        windowInit();
-        hwnd = FindWindow(NULL, "Prawe");
-        SetWindowLong(hwnd, GWL_STYLE, WS_BORDER | WS_MAXIMIZE);
-        glutReshapeFunc(rozmiarPrawe);                        // def. obs³ugi zdarzenia resize (GLUT)
-        glutKeyboardFunc(KlawiszKlawiaturyWcisniety);        // def. obs³ugi klawiatury
-        glutSpecialFunc(KlawiszSpecjalnyWcisniety);        // def. obs³ugi klawiatury (klawisze specjalne)
-        glutMouseFunc(PrzyciskMyszyWcisniety);            // def. obs³ugi zdarzenia przycisku myszy (GLUT)
-        glutMotionFunc(RuchKursoraMyszy);                    // def. obs³ugi zdarzenia ruchu myszy (GLUT)
-        glutDisplayFunc(rysuj);                                // def. funkcji rysuj¹cej
-    } else {  // jedno okno
-        glutInitWindowSize(oknoSzerkosc, oknoWysokosc);
-        glutInitWindowPosition(0, 0);
-        oknoLewe = glutCreateWindow("Szablon");
-        windowInit();
-        glutReshapeFunc(rozmiar);                        // def. obs³ugi zdarzenia resize (GLUT)
-        glutKeyboardFunc(KlawiszKlawiaturyWcisniety);        // def. obs³ugi klawiatury
-        glutSpecialFunc(KlawiszSpecjalnyWcisniety);        // def. obs³ugi klawiatury (klawisze specjalne)
-        glutMouseFunc(PrzyciskMyszyWcisniety);            // def. obs³ugi zdarzenia przycisku myszy (GLUT)
-        glutMotionFunc(RuchKursoraMyszy);                    // def. obs³ugi zdarzenia ruchu myszy (GLUT)
-        glutDisplayFunc(rysuj);                                // def. funkcji rysuj¹cej
-    }
-    if (stereoTryb == 1 || !timing100FPS)
-        glutIdleFunc(timer);
-    else
-        glutTimerFunc(10, syncTimer, 10);
+    // jedno okno
+    glutInitWindowSize(oknoSzerkosc, oknoWysokosc);
+    glutInitWindowPosition(0, 0);
+    oknoLewe = glutCreateWindow("Szablon");
+
+
+    glutReshapeFunc(rozmiar);                        // def. obs³ugi zdarzenia resize (GLUT)
+    glutKeyboardFunc(KlawiszKlawiaturyWcisniety);        // def. obs³ugi klawiatury
+    glutSpecialFunc(KlawiszSpecjalnyWcisniety);        // def. obs³ugi klawiatury (klawisze specjalne)
+    glutMouseFunc(PrzyciskMyszyWcisniety);            // def. obs³ugi zdarzenia przycisku myszy (GLUT)
+    glutMotionFunc(RuchKursoraMyszy);                    // def. obs³ugi zdarzenia ruchu myszy (GLUT)
+    glutDisplayFunc(rysuj);                                // def. funkcji rysuj¹cej
+
+    windowInit();
+
+    glutTimerFunc(10, syncTimer, 10);
     resetKamery();
     //srand( (unsigned)time( NULL ) ); // generator liczb losowych
     ladujModele();
