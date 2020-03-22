@@ -46,6 +46,7 @@ double kameraPredkosc;
 bool kameraPrzemieszczanie;        // przemieszczanie lub rozgl¹danie
 double kameraKat;                // kat patrzenia
 double kameraPredkoscObrotu;
+bool sunAnimation = false;
 
 
 double slonceX = 0;
@@ -493,9 +494,9 @@ void slonce() {
     if (sunIntensity < 0.8) {
         redIntensity = 1 - 2 * abs(std::min(intensity, 0.00));
     }
-    std::cout << "red";
-    std::cout << redIntensity;
-    std::cout << "\n";
+//    std::cout << "red";
+//    std::cout << redIntensity;
+//    std::cout << "\n";
     diffuseLight0[0] = 1.0f * redIntensity;
     diffuseLight0[1] = 1.0f * sunIntensity;
     diffuseLight0[2] = 1.0f * sunIntensity;
@@ -512,9 +513,9 @@ void slonce() {
     lightPos0[3] = 1.0f;
 
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight0);
+//    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight0);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight0);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
+//    glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
     glEnable(GL_LIGHT0);
 
@@ -636,6 +637,45 @@ void mglafunc() {
 
 }
 
+void sunLensFlare(){
+    GLfloat  matSpecular1[4] = {0.5,0.5,0.5,0.4};
+    GLfloat  matAmbient1[4] = {0.6,0.6,0.6,0.4};
+    GLfloat  matDiffuse1[4] = {0.6,0.6,0.6,0.4};
+    GLfloat  matEmission1[4] = {0,0,0,0.4};
+    GLfloat  matShininess1 = 100;
+
+
+    GLfloat  flareColor[4] = {1,1,1,0.6};
+
+
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    glEnable(GL_COLOR_MATERIAL);
+
+//    glMaterialfv(GL_FRONT, GL_SPECULAR,matSpecular1);
+//    glMaterialfv(GL_FRONT, GL_AMBIENT,matAmbient1);
+//    glMaterialfv(GL_FRONT, GL_DIFFUSE,matDiffuse1);
+//    glMaterialfv(GL_FRONT, GL_EMISSION,matEmission1);
+//    glMateriali(GL_FRONT,GL_SHININESS,matShininess1);
+
+    glEnable(GL_BLEND);
+    glDepthMask(GL_FALSE);
+    glBlendFunc(GL_ALPHA, GL_ALPHA);
+
+    glColor4fv(flareColor);
+    glTranslatef(5.0 + kameraX + 10 * sin(kameraKat), kameraY + kameraPunktY/8,-5 + kameraZ - 10 * cos(kameraKat));
+
+
+    float mnoznik = pow(abs(slonceX-kameraX)+ abs(slonceY-kameraY)+abs(slonceZ-kameraZ), 1.0/3.0);
+    glScaled(abs(1-mnoznik)/2,abs(1-mnoznik)/2,abs(1-mnoznik)/2);
+//    std::cout<<kameraPunktY;
+    if(kameraPunktY > 5 && slonceY > 0)
+        gluSphere(obiekt,1,50,50);
+
+
+    glDisable(GL_COLOR_MATERIAL);
+}
+
 
 void config() {
     oknoFullScreen = false;
@@ -711,7 +751,8 @@ void draw() {
     slonceZ = std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
 
     glPushMatrix();
-    animacjaSlonca = ((++animacjaSlonca) % (int) (628 * mnoznik));
+    if(sunAnimation)
+        animacjaSlonca = ((++animacjaSlonca) % (int) (628 * mnoznik));
 
     GLfloat yellow[4];
 
@@ -751,10 +792,13 @@ void draw() {
     glEnable(GL_LIGHTING);
 
     //rysowanie slonnca ksiezyca i swiatla latarni
+
     slonce();
+
+
     latarnia();
     latarnia2();
-    mglafunc();
+//    mglafunc();
 
     for (int a = 0; a < 12; a++) {
         glPushMatrix();
@@ -764,6 +808,8 @@ void draw() {
         glPopMatrix();
 
     }
+
+    sunLensFlare();
 
 
     glPushMatrix();
@@ -779,6 +825,7 @@ void draw() {
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
     glPopMatrix();
+
 
 
 }
