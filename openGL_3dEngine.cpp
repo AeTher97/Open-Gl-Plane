@@ -638,39 +638,56 @@ void mglafunc() {
 }
 
 void sunLensFlare(){
+
     GLfloat  matSpecular1[4] = {0.5,0.5,0.5,0.4};
     GLfloat  matAmbient1[4] = {0.6,0.6,0.6,0.4};
     GLfloat  matDiffuse1[4] = {0.6,0.6,0.6,0.4};
     GLfloat  matEmission1[4] = {0,0,0,0.4};
     GLfloat  matShininess1 = 100;
 
-
-    GLfloat  flareColor[4] = {1,1,1,0.6};
+    GLfloat  flareColor1[4] = {1,0.2,0.2,0.3};
+    GLfloat  flareColor2[4] = {0.2,0.1,1,0.3};
+    GLfloat  flareColor3[4] = {0.2,0.1,1,0.3};
 
 
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
     glEnable(GL_COLOR_MATERIAL);
 
-//    glMaterialfv(GL_FRONT, GL_SPECULAR,matSpecular1);
-//    glMaterialfv(GL_FRONT, GL_AMBIENT,matAmbient1);
-//    glMaterialfv(GL_FRONT, GL_DIFFUSE,matDiffuse1);
-//    glMaterialfv(GL_FRONT, GL_EMISSION,matEmission1);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,matSpecular1);
+    glMaterialfv(GL_FRONT, GL_AMBIENT,matAmbient1);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,matDiffuse1);
+    glMaterialfv(GL_FRONT, GL_EMISSION,matEmission1);
 //    glMateriali(GL_FRONT,GL_SHININESS,matShininess1);
 
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
-    glBlendFunc(GL_ALPHA, GL_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor4fv(flareColor);
-    glTranslatef(5.0 + kameraX + 10 * sin(kameraKat), kameraY + kameraPunktY/8,-5 + kameraZ - 10 * cos(kameraKat));
+    glColor4fv(flareColor1);
 
 
-    float mnoznik = pow(abs(slonceX-kameraX)+ abs(slonceY-kameraY)+abs(slonceZ-kameraZ), 1.0/3.0);
-    glScaled(abs(1-mnoznik)/2,abs(1-mnoznik)/2,abs(1-mnoznik)/2);
 //    std::cout<<kameraPunktY;
-    if(kameraPunktY > 5 && slonceY > 0)
+    if(kameraPunktY > 5 && slonceY > 0) {
+        glPushMatrix();
+        glTranslatef(0.0 + kameraX + 10 * sin(kameraKat), kameraY + kameraPunktY/8,0 + kameraZ - 10 * cos(kameraKat));
+        float mnoznik = pow(abs(slonceX-kameraX)+ abs(slonceY-kameraY)+abs(slonceZ-kameraZ), 1.0/3.0);
+        glScaled(abs(1-mnoznik)/2,abs(1-mnoznik)/2,abs(1-mnoznik)/2);
+        gluSphere(obiekt, 1, 50, 50);
+        glPopMatrix();
+
+        glColor4fv(flareColor2);
+        glPushMatrix();
+        glTranslatef(0.0 + kameraX + 12 * sin(kameraKat), kameraY + kameraPunktY/6,0 + kameraZ - 15 * cos(kameraKat));
         gluSphere(obiekt,1,50,50);
+        glPopMatrix();
+
+        glColor4fv(flareColor3);
+        glPushMatrix();
+        glTranslatef(0.0 + kameraX + 11 * sin(kameraKat), kameraY + kameraPunktY/7,0 + kameraZ - 12 * cos(kameraKat));
+        gluSphere(obiekt,1,50,50);
+        glPopMatrix();
+    }
 
 
     glDisable(GL_COLOR_MATERIAL);
