@@ -46,12 +46,13 @@ double kameraPredkosc;
 bool kameraPrzemieszczanie;        // przemieszczanie lub rozgl¹danie
 double kameraKat;                // kat patrzenia
 double kameraPredkoscObrotu;
-bool sunAnimation = false;
+bool sunAnimation = true;
 
 
 double slonceX = 0;
 double slonceY = 0;
 double slonceZ = 0;
+GLdouble slonceProjection[16];
 
 
 double ksiezycX = 0;
@@ -364,16 +365,6 @@ void rozmiar(int width, int height) {
 
 }
 
-void rozmiarLewe(int width, int height) {
-    glutSetWindow(oknoLewe);
-    rozmiar(width, height);
-}
-
-void rozmiarPrawe(int width, int height) {
-    glutSetWindow(oknoPrawe);
-    rozmiar(width, height);
-}
-
 struct model_w_skladzie {
     char *filename;
     model3DS *model;
@@ -448,6 +439,8 @@ void ladujModele() {
 }
 
 void windowInit() {
+
+    animacjaSlonca = 150;
     glViewport(0, 0, oknoSzerkosc, oknoWysokosc); // O
 
     glClearColor(0.2, 0.2, 1.0, 0.0);
@@ -459,7 +452,7 @@ void windowInit() {
 
     obiekt = gluNewQuadric();
     gluQuadricOrientation(obiekt, GLU_OUTSIDE);
-    //gluQuadricDrawStyle (obiekt, GLU_FILL);
+    //gluobiektDrawStyle (obiekt, GLU_FILL);
 
     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
@@ -637,60 +630,93 @@ void mglafunc() {
 
 }
 
-void sunLensFlare(){
-
-    GLfloat  matSpecular1[4] = {0.5,0.5,0.5,0.4};
-    GLfloat  matAmbient1[4] = {0.6,0.6,0.6,0.4};
-    GLfloat  matDiffuse1[4] = {0.6,0.6,0.6,0.4};
-    GLfloat  matEmission1[4] = {0,0,0,0.4};
-    GLfloat  matShininess1 = 100;
-
-    GLfloat  flareColor1[4] = {1,0.2,0.2,0.3};
-    GLfloat  flareColor2[4] = {0.2,0.1,1,0.3};
-    GLfloat  flareColor3[4] = {0.2,0.1,1,0.3};
+void sunLensFlare() {
 
 
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    //Sprawdzanie czy słonce jest na ekranie
+    GLdouble projection[16];
+    GLdouble modelView[16];
+    GLint viewport[4];
 
-    glEnable(GL_COLOR_MATERIAL);
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelView);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glMaterialfv(GL_FRONT, GL_SPECULAR,matSpecular1);
-    glMaterialfv(GL_FRONT, GL_AMBIENT,matAmbient1);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,matDiffuse1);
-    glMaterialfv(GL_FRONT, GL_EMISSION,matEmission1);
-//    glMateriali(GL_FRONT,GL_SHININESS,matShininess1);
+    GLdouble screenX, screenY, screenZ;
+    gluProject(slonceX, slonceY, slonceZ,
+               modelView, projection, viewport,
+               &screenX, &screenY, &screenZ);
 
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    boolean drawFlares = false;
 
-    glColor4fv(flareColor1);
-
-
-//    std::cout<<kameraPunktY;
-    if(kameraPunktY > 5 && slonceY > 0) {
-        glPushMatrix();
-        glTranslatef(0.0 + kameraX + 10 * sin(kameraKat), kameraY + kameraPunktY/8,0 + kameraZ - 10 * cos(kameraKat));
-        float mnoznik = pow(abs(slonceX-kameraX)+ abs(slonceY-kameraY)+abs(slonceZ-kameraZ), 1.0/3.0);
-        glScaled(abs(1-mnoznik)/2,abs(1-mnoznik)/2,abs(1-mnoznik)/2);
-        gluSphere(obiekt, 1, 50, 50);
-        glPopMatrix();
-
-        glColor4fv(flareColor2);
-        glPushMatrix();
-        glTranslatef(0.0 + kameraX + 12 * sin(kameraKat), kameraY + kameraPunktY/6,0 + kameraZ - 15 * cos(kameraKat));
-        gluSphere(obiekt,1,50,50);
-        glPopMatrix();
-
-        glColor4fv(flareColor3);
-        glPushMatrix();
-        glTranslatef(0.0 + kameraX + 11 * sin(kameraKat), kameraY + kameraPunktY/7,0 + kameraZ - 12 * cos(kameraKat));
-        gluSphere(obiekt,1,50,50);
-        glPopMatrix();
+    if (screenX > 0 && screenX < oknoSzerkosc && screenY > 0 && screenY < oknoWysokosc && slonceY > 160) {
+        drawFlares = true;
     }
 
+    //Rysowanie flar
 
-    glDisable(GL_COLOR_MATERIAL);
+    if (drawFlares) {
+
+        float no_mat[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float mat_ambient_color[] = {0.8f, 0.8f, 0.2f, 1.0f};
+        float no_shininess = 0.0f;
+        float mat_emission[7][4] = {{0.3f, 0.2f,  0.2f, 0.0f},
+                                    {0.3f, 0.05f, 0.0f, 0.0f},
+                                    {0.4f, 0.1f,  0.5f, 0.0f},
+                                    {0.3f, 0.2f,  0.2f, 0.0f},
+                                    {0.5f, 0.6f,  0.2f, 0.0f},
+                                    {0.3f, 0.2f,  0.2f, 0.0f},
+                                    {0.8f, 0.2f,  0.2f, 0.0f}};
+
+        float sizes[7] = {0.8f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 2.2f};
+
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_COLOR, GL_ONE); //to calkiem dobre
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc(GL_ONE, GL_ONE);
+//    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+//    glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+        //glBlendFunc(GL_ONE, GL_ONE);
+        // pierwszy parametr:GL_ZERO, GL_ONE, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_SRC_ALPHA_SATURATE.
+        // drugi parametr:GL_ZERO, GL_ONE, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA
+
+        GLfloat odleglosc = 3;
+        GLfloat centerX = kameraX + sin(kameraKat) * odleglosc;
+        GLfloat centerY = kameraY;
+        GLfloat centerZ = kameraZ - cos(kameraKat) * odleglosc;
+
+        GLfloat vectorX = slonceX - centerX;
+        GLfloat vectorY = slonceY - centerY;
+        GLfloat vectorZ = slonceZ - centerZ;
+        GLfloat flareX = 0;
+        GLfloat flareZ = 0;
+        GLfloat flareY = 0;
+
+
+        for (int i = 0; i < 7; i++) {
+
+            flareX = centerX + 0.002 * i * i * vectorX - 0.0015 * vectorX;
+            flareY = centerY + 0.002 * i * i * vectorY - 0.0015 * vectorY;
+            flareZ = centerZ + 0.002 * i * i * vectorZ - 0.0015 * vectorZ;
+
+            glPushMatrix();
+            glTranslatef(flareX, flareY, flareZ);
+            glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient_color);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, no_mat);
+            glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
+            glMaterialf(GL_FRONT, GL_SHININESS, no_shininess);
+            glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission[i]);
+            gluSphere(obiekt, sizes[i], 16, 16);
+
+
+            glPopMatrix();
+        }
+
+
+        glDisable(GL_BLEND);
+    }
+
 }
 
 
@@ -715,6 +741,11 @@ void config() {
 
 
 void draw() {
+
+    float no_mat[] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float mat_ambient_color[] = {0.8f, 0.8f, 0.2f, 1.0f};
+    float no_shininess = 0.0f;
+    float mat_emission[] = {1.0f, 1.0f, 0.2f, 0.0f};
 
     glPushMatrix();
     glTranslatef(0, 1, 0);
@@ -768,15 +799,10 @@ void draw() {
     slonceZ = std::sin((float) animacjaSlonca / 100 / mnoznik) * radius;
 
     glPushMatrix();
-    if(sunAnimation)
+    if (sunAnimation)
         animacjaSlonca = ((++animacjaSlonca) % (int) (628 * mnoznik));
 
-    GLfloat yellow[4];
 
-    yellow[0] = 1.0f;
-    yellow[1] = 0.7f;
-    yellow[2] = 0.0f;
-    yellow[3] = 1.0f;
 
     GLfloat blue[4];
 
@@ -790,8 +816,14 @@ void draw() {
     glGetFloatv(GL_AMBIENT, current);
 
     glTranslatef(slonceX, slonceY, slonceZ);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellow);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient_color);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, no_mat);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
+    glMaterialf(GL_FRONT, GL_SHININESS, no_shininess);
+    glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
     gluSphere(obiekt, 10, 50, 50);
+
+    glGetDoublev(GL_MODELVIEW_MATRIX, slonceProjection);
 
     glPopMatrix();
 
@@ -799,11 +831,13 @@ void draw() {
 
     glTranslatef(ksiezycX, ksiezycY, ksiezycZ);
     glColor3f(0, 0, 1);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blue);
+    float mat_emission2[4] = {0.7f, 0.6f, 0.8f, 0.0f};
+
+    glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission2);
 
     gluSphere(obiekt, 6, 50, 50);
     glPopMatrix();
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, current);
+    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
 
     glEnable(GL_LIGHTING);
@@ -842,12 +876,12 @@ void draw() {
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
     glPopMatrix();
-
+    glPopMatrix();
 
 
 }
 
-void rysujRamke(bool prawa) {
+void rysujRamke() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Kasowanie ekranu
     glLoadIdentity();
 
@@ -856,14 +890,13 @@ void rysujRamke(bool prawa) {
 
 
     draw();
-
     glFlush();
-    glPopMatrix();
+
 }
 
 
 void rysuj() {
-    rysujRamke(false);
+    rysujRamke();
     glutSwapBuffers();
 }
 
