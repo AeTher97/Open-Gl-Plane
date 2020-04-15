@@ -25,7 +25,7 @@ bool oknoFullScreen = false;
 GLint oknoLewe = 1, oknoPrawe = 2;      // id okien stereo
 
 // Opcje projekcji stereo
-int stereoTryb = 3;
+int stereoTryb = 0;
 int stereoRozstawOczu = 5;                // dystans miêdzy oczami
 int stereoPunktPatrzenia = 150;            // odleg³oœæ do punktu, na który patrz¹ oczy
 bool stereoIDRamki = false;
@@ -45,6 +45,7 @@ double kameraKat;                // kat patrzenia
 double kameraPredkoscObrotu;
 #define MIN_DYSTANS 0.5            // minimalny dystans od brzegu obszaru ograniczenia kamery
 double obszarKamery = 0;
+float car1pos = 30;
 
 #define _DEFINICJE
 
@@ -490,11 +491,87 @@ void draw() {
     // przyklad:
 
     glPushMatrix();
-    glTranslatef(10, -8, -43);
-    glRotatef(-42, 0, 1, 0);
-    rysujModel("lawka");
-
+    glTranslated(15,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(90, 0, 1, 0);
+    rysujModel("droga_skrzyzowanie");
     glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(30,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(180, 0, 1, 0);
+    glTranslated(1,0,-10);
+    rysujModel("droga_koniec");
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(30,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(90, 0, 1, 0);
+    glTranslated(-10,0,-15);
+    rysujModel("droga_prosta");
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(30,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(180, 0, 1, 0);
+    glTranslated(40,0,-10);
+    glRotatef(180, 0, 1, 0);
+    rysujModel("droga_koniec");
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(15,1,1);
+    glRotatef(-42, 0, 3, 0);
+//    glRotatef(90, 0, 1, 0);
+    glTranslated(0,0,30);
+    rysujModel("droga_prosta");
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(15,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glTranslated(0,0,30);
+    glRotatef(90, 0, 1, 0);
+    rysujModel("droga_koniec");
+    glPopMatrix();
+
+
+    int start = 30;
+    int end = 0;
+    glPushMatrix();
+    glTranslated(25,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(180, 0, 1, 0);
+    glTranslated(car1pos,0.1,-8.5);
+    glRotatef(-90, 0, 1, 0);
+    rysujModel("sam");
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(25,1,1);
+    glRotatef(-42, 0, 3, 0);
+    glRotatef(180, 0, 1, 0);
+    glTranslated(30-car1pos,0.1,-4.8);
+    glRotatef(90, 0, 1, 0);
+    rysujModel("sam");
+    glPopMatrix();
+
+    car1pos -=0.05;
+    if(car1pos <= 0.0)
+        car1pos = 30;
+
+
+
+
+//    glPushMatrix();
+//    glTranslatef(10, -8, 10);
+////    glRotatef(-42, 0, 1, 0);
+//    rysujModel("droga_koniec");
+//
+//    glPopMatrix();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 
@@ -515,28 +592,28 @@ void draw() {
     rysujModel("lawka");
     glPopMatrix();
 
-    glPushMatrix();
-    glTranslatef(-149, 50, -133);
-    glRotatef(-33, 0, 1, 0);
-    rysujModel("most");
-    glPopMatrix();
+//    glPushMatrix();
+//    glTranslatef(-149, 50, -133);
+//    glRotatef(-33, 0, 1, 0);
+//    rysujModel("most");
+//    glPopMatrix();
 
 
     // Tu (na koñcu) rysowanie obiektów BLEND
-
-    glPushMatrix();
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
-    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
-    glTranslatef(105, -6.7, -103);
-    rysujModel("woda");
-    glDepthMask(GL_TRUE);
-    glDisable(GL_BLEND);
-    glPopMatrix();
+//
+//    glPushMatrix();
+//    glEnable(GL_BLEND);
+//    glDepthMask(GL_FALSE);
+//    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+//    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
+//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
+//    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
+//    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
+//    glTranslatef(105, -6.7, -103);
+//    rysujModel("woda");
+//    glDepthMask(GL_TRUE);
+//    glDisable(GL_BLEND);
+//    glPopMatrix();
 
     /******************************************************/
 
