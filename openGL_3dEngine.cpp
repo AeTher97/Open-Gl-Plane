@@ -116,7 +116,7 @@ int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
 
-auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.05);
+auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.2);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -312,6 +312,12 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
             break;
         case '9':
             plane.pitch += 15;
+            break;
+        case '+':
+            plane.increaseVelocity();
+            break;
+        case '-':
+            plane.decreaseVelocity();
             break;
 
 
@@ -512,7 +518,7 @@ void draw() {
     glPushMatrix();
 
     plane.position.z = plane.position.z +
-                       sin(((double) 90 - plane.pitch) / 360 * 6.28) * cos(((double) plane.yaw) / 360 * 6.28) * 0.1;
+                       sin(((double) 90 - plane.pitch) / 360 * 6.28) * cos(((double) plane.yaw) / 360 * 6.28) * plane.getVelocity();
     plane.position.x = plane.position.x -
                        cos(((double) 90 - plane.pitch) / 360 * 6.28) * sin(((double) plane.yaw) / 360 * 6.28) * 0.1;
     plane.position.y = plane.position.y - cos(((double) 90 - plane.pitch) / 360 * 6.28) * 0.1;
