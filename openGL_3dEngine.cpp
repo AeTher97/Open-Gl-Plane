@@ -295,12 +295,6 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
         case 'o':
             lawkaPredkosc -= 0.04;
             break;
-        case '8':
-            plane.increaseVelocity();
-            break;
-        case '2':
-            plane.decreaseVelocity();
-            break;
         case '4':
             plane.yaw += 15;
             break;
