@@ -477,7 +477,7 @@ void draw() {
     //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
     glTranslatef(0, 1, 0);
-    rysujModel("teren"); // malowanie pod³o¿a
+//    rysujModel("teren"); // malowanie pod³o¿a
     rysujModel("niebo"); // malowanie nieba
     glPopMatrix();
 
@@ -489,10 +489,10 @@ void draw() {
 
     // przyklad:
 
-    glPushMatrix();
-    glTranslatef(10, -8, -43);
-    glRotatef(-42, 0, 1, 0);
-    rysujModel("lawka");
+//    glPushMatrix();
+//    glTranslatef(10, -8, -43);
+//    glRotatef(-42, 0, 1, 0);
+//    rysujModel("lawka");
 
     glPopMatrix();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -503,40 +503,40 @@ void draw() {
 
 
 
-    glPushMatrix();
-    glTranslatef(-25, -7, 120);
-    glRotatef(90, 0, 1, 0);
-    rysujModel("latarnia");
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(120, -5.5, -103);
-    glRotatef(-86, 0, 1, 0);
-    rysujModel("lawka");
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(-149, 50, -133);
-    glRotatef(-33, 0, 1, 0);
-    rysujModel("most");
-    glPopMatrix();
+//    glPushMatrix();
+//    glTranslatef(-25, -7, 120);
+//    glRotatef(90, 0, 1, 0);
+//    rysujModel("latarnia");
+//    glPopMatrix();
+//
+//    glPushMatrix();
+//    glTranslatef(120, -5.5, -103);
+//    glRotatef(-86, 0, 1, 0);
+//    rysujModel("lawka");
+//    glPopMatrix();
+//
+//    glPushMatrix();
+//    glTranslatef(-149, 50, -133);
+//    glRotatef(-33, 0, 1, 0);
+//    rysujModel("most");
+//    glPopMatrix();
 
 
     // Tu (na koñcu) rysowanie obiektów BLEND
 
-    glPushMatrix();
-    glEnable(GL_BLEND);
-    glDepthMask(GL_FALSE);
-    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
-    glTranslatef(105, -6.7, -103);
-    rysujModel("woda");
-    glDepthMask(GL_TRUE);
-    glDisable(GL_BLEND);
-    glPopMatrix();
+//    glPushMatrix();
+//    glEnable(GL_BLEND);
+//    glDepthMask(GL_FALSE);
+//    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+//    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
+//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
+//    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
+//    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
+//    glTranslatef(105, -6.7, -103);
+//    rysujModel("woda");
+//    glDepthMask(GL_TRUE);
+//    glDisable(GL_BLEND);
+//    glPopMatrix();
 
     /******************************************************/
 
