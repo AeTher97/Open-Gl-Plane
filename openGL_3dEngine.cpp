@@ -511,9 +511,13 @@ void draw() {
 
     glPushMatrix();
 
+    plane.position.x = plane.position.x + cos(... * 3.14 / 180.0) * sin(... * 3.14 / 180.0) * 0.1;
+    plane.position.y = plane.position.y + cos(... * 3.14 / 180.0)) * sin(... * 3.14 / 180.0) 0.1;
+    plane.position.z = plane.position.z + cos(... * 3.14 / 180.0) * 0.1;
     glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
     glRotatef(plane.yRotate, 0, 1, 0);
     glRotatef(plane.zRotate, 0, 0, 1);
+//    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
 //    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
     glScalef(5,5,5);
@@ -521,7 +525,7 @@ void draw() {
     rysujModel("cesna");
 
     glPopMatrix();
-    plane.changePosition();
+//    plane.changePosition();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 

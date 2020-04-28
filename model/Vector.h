@@ -10,8 +10,9 @@ namespace ThreeDimension {
 
     class Vector {
     private:
-        float x, y, z = 0.0f;
+
     public:
+        float x, y, z = 0.0f;
         void changeVector(float x, float y, float z);
         float getXValue();
         float getYValue();
