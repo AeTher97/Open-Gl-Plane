@@ -25,7 +25,7 @@ bool oknoFullScreen = false;
 GLint oknoLewe = 1, oknoPrawe = 2;      // id okien stereo
 
 // Opcje projekcji stereo
-int stereoTryb = 3;
+int stereoTryb = 0;
 int stereoRozstawOczu = 5;                // dystans miêdzy oczami
 int stereoPunktPatrzenia = 150;            // odleg³oœæ do punktu, na który patrz¹ oczy
 bool stereoIDRamki = false;
@@ -489,10 +489,11 @@ void draw() {
 
     // przyklad:
 
-//    glPushMatrix();
-//    glTranslatef(10, -8, -43);
-//    glRotatef(-42, 0, 1, 0);
-//    rysujModel("lawka");
+    glPushMatrix();
+    glTranslatef(10, -8, -43);
+    glRotatef(-42, 0, 1, 0);
+    glScalef(5,5,5);
+    rysujModel("cesna");
 
     glPopMatrix();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
