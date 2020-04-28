@@ -17,8 +17,8 @@ namespace airplane {
         int flaps = 0;
     public:
         Airplane(ThreeDimension::Vector startPosition, float startVelocity);
-        ThreeDimension::Vector position = ThreeDimension::Vector(0.0f,0.0f,0.0f);
-        int xRotate, yRotate, zRotate = 0;
+        ThreeDimension::Vector position = ThreeDimension::Vector(0.0f, 0.0f, 0.0f);
+        int roll, yaw, pitch = 0;
         ThreeDimension::Vector getPosition();
         void changePosition();
         float getVelocity();

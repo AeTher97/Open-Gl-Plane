@@ -116,7 +116,7 @@ int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
 
-auto plane = Airplane(ThreeDimension::Vector(10.0f, -8.0f, -43.0f), 0.05);
+auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.05);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -302,16 +302,16 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
             plane.decreaseVelocity();
             break;
         case '4':
-            plane.yRotate += 15;
+            plane.yaw += 15;
             break;
         case '6':
-            plane.yRotate -= 15;
+            plane.yaw -= 15;
             break;
         case '7':
-            plane.zRotate -= 15;
+            plane.pitch -= 15;
             break;
         case '9':
-            plane.zRotate += 15;
+            plane.pitch += 15;
             break;
 
 
@@ -511,16 +511,19 @@ void draw() {
 
     glPushMatrix();
 
-    plane.position.x = plane.position.x + cos(... * 3.14 / 180.0) * sin(... * 3.14 / 180.0) * 0.1;
-    plane.position.y = plane.position.y + cos(... * 3.14 / 180.0) * sin(... * 3.14 / 180.0) 0.1;
-    plane.position.z = plane.position.z + cos(... * 3.14 / 180.0) * 0.1;
-    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
-    glRotatef(plane.yRotate, 0, 1, 0);
-    glRotatef(plane.zRotate, 0, 0, 1);
+    plane.position.z = plane.position.z +
+                       sin(((double) 90 - plane.pitch) / 360 * 6.28) * cos(((double) plane.yaw) / 360 * 6.28) * 0.1;
+    plane.position.x = plane.position.x -
+                       cos(((double) 90 - plane.pitch) / 360 * 6.28) * sin(((double) plane.yaw) / 360 * 6.28) * 0.1;
+    plane.position.y = plane.position.y - cos(((double) 90 - plane.pitch) / 360 * 6.28) * 0.1;
+
+    glTranslatef(plane.position.x, plane.position.y, plane.position.z);
+    glRotatef(plane.yaw, 0, 1, 0);
+    glRotatef(plane.pitch, 1, 0, 0);
 //    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
 //    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
-    glScalef(5,5,5);
+    glScalef(5, 5, 5);
 
     rysujModel("cesna");
 
