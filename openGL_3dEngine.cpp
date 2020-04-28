@@ -8,12 +8,13 @@
 #include <windows.h>
 #include "GL/glut.h"
 #include "include/model3DS.h"
+#include "model/Airplane.h"
 #include <time.h>
 #include <direct.h>
 #include <GL/glu.h>
 #include <cmath>
 
-
+using namespace airplane;
 
 //#include <GL/glaux.h>
 //#define GLUTCHECKLOOP
@@ -29,8 +30,7 @@ int stereoTryb = 0;
 int stereoRozstawOczu = 5;                // dystans miêdzy oczami
 int stereoPunktPatrzenia = 150;            // odleg³oœæ do punktu, na który patrz¹ oczy
 bool stereoIDRamki = false;
-bool timing100FPS = true;                // flaga polecenia odmierzania czasu
-
+bool timing100FPS = true;                // flaga polecenia odmierzania czas
 // Kamera
 int pozycjaMyszyX;                        // na ekranie
 int pozycjaMyszyY;
@@ -115,6 +115,8 @@ float lawkaPredkosc = 0;
 int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
+
+auto plane = Airplane(ThreeDimension::Vector(10.0f, -8.0f, -43.0f), 0.1);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -490,12 +492,13 @@ void draw() {
     // przyklad:
 
     glPushMatrix();
-    glTranslatef(10, -8, -43);
-    glRotatef(-42, 0, 1, 0);
+    glTranslatef(plane.position.getXValue(), plane.position.getYValue(), plane.position.getZValue());
+//    glRotatef(-42, 0, 1, 0);
     glScalef(5,5,5);
     rysujModel("cesna");
 
     glPopMatrix();
+    plane.position.changeVector(0,0,plane.getVelocity());
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 
