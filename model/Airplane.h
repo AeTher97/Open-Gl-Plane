@@ -11,13 +11,19 @@ namespace airplane {
 
     class Airplane {
     private:
+        const float velocityStep = 0.1;
+        ThreeDimension::Vector position = ThreeDimension::Vector(0.0f,0.0f,0.0f);
         ThreeDimension::Vector translationVector = ThreeDimension::Vector(0.0f,0.0f,0.0f);
         float velocity = 0;
         int flaps = 0;
     public:
         Airplane(ThreeDimension::Vector startPosition, float startVelocity);
-        ThreeDimension::Vector position = ThreeDimension::Vector(0.0f,0.0f,0.0f);
+        int xRotate, yRotate, zRotate = 0;
+        ThreeDimension::Vector getPosition();
+        void changePosition();
         float getVelocity();
+        void increaseVelocity();
+        void decreaseVelocity();
     };
 }
 

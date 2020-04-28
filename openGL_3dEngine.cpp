@@ -116,7 +116,7 @@ int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
 
-auto plane = Airplane(ThreeDimension::Vector(10.0f, -8.0f, -43.0f), 0.1);
+auto plane = Airplane(ThreeDimension::Vector(10.0f, -8.0f, -43.0f), 0.05);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -295,6 +295,24 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
         case 'o':
             lawkaPredkosc -= 0.04;
             break;
+        case '8':
+            plane.increaseVelocity();
+            break;
+        case '2':
+            plane.decreaseVelocity();
+            break;
+        case '4':
+            plane.yRotate += 15;
+            break;
+        case '6':
+            plane.yRotate -= 15;
+            break;
+        case '7':
+            plane.zRotate -= 15;
+            break;
+        case '9':
+            plane.zRotate += 15;
+            break;
 
 
     }
@@ -471,7 +489,7 @@ void ladujModele() {
 
 void draw() {
 
-
+    glDisable(GL_FOG);
     // TEREN
     // Tekstura podloza jest zapisana w pliku "data/podloze.bmp", definiowana bezpoœrednio w 3ds.
     // Wymagany format pliku: bmp, 24 bity na pixel.
@@ -492,13 +510,18 @@ void draw() {
     // przyklad:
 
     glPushMatrix();
-    glTranslatef(plane.position.getXValue(), plane.position.getYValue(), plane.position.getZValue());
+
+    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
+    glRotatef(plane.yRotate, 0, 1, 0);
+    glRotatef(plane.zRotate, 0, 0, 1);
+//    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
     glScalef(5,5,5);
+
     rysujModel("cesna");
 
     glPopMatrix();
-    plane.position.changeVector(0,0,plane.getVelocity());
+    plane.changePosition();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 
