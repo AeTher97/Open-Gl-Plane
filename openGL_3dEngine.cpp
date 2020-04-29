@@ -46,6 +46,8 @@ double kameraPredkoscObrotu;
 #define MIN_DYSTANS 0.5            // minimalny dystans od brzegu obszaru ograniczenia kamery
 double obszarKamery = 0;
 
+
+float velocity = 1.0f;
 #define _DEFINICJE
 
 // DEFINICJE ZMIENNYCH
@@ -295,23 +297,46 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
         case 'o':
             lawkaPredkosc -= 0.04;
             break;
-        case '8':
+        case '+':
             plane.increaseVelocity();
             break;
-        case '2':
+        case '-':
             plane.decreaseVelocity();
             break;
-        case '4':
-            plane.yaw += 15;
-            break;
-        case '6':
-            plane.yaw -= 15;
-            break;
         case '7':
-            plane.pitch -= 15;
+            plane.yaw += 15.0 * cos((double) plane.roll / 360 * 6.28);
+            plane.pitch -= 15.0 * sin((double) plane.roll / 360 * 6.28);
             break;
         case '9':
-            plane.pitch += 15;
+            plane.yaw -= 15.0 * cos((double) plane.roll / 360 * 6.28);
+            plane.pitch += 15.0 * sin((double) plane.roll / 360 * 6.28);
+            break;
+        case '8':
+            plane.pitch += 15.0 * cos((double) plane.roll / 360 * 6.28);
+            plane.yaw += 15.0 * sin((double) plane.roll / 360 * 6.28);
+            if (plane.pitch < -360) {
+                plane.pitch += 360;
+            }
+            break;
+        case '2':
+            plane.pitch -= 15.0 * cos((double) plane.roll / 360 * 6.28);
+            plane.yaw -= 15.0 * sin((double) plane.roll / 360 * 6.28);
+            if (plane.pitch > 360) {
+                plane.pitch -= 360;
+            }
+            break;
+        case '4':
+            plane.roll -= 15;
+            if (plane.roll < -360) {
+                plane.roll += 360;
+            }
+
+            break;
+        case '6':
+            plane.roll += 15;
+            if (plane.roll > 360) {
+                plane.roll -= 360;
+            }
             break;
 
 
@@ -511,15 +536,24 @@ void draw() {
 
     glPushMatrix();
 
-    plane.position.z = plane.position.z +
-                       sin(((double) 90 - plane.pitch) / 360 * 6.28) * cos(((double) plane.yaw) / 360 * 6.28) * 0.1;
-    plane.position.x = plane.position.x -
-                       cos(((double) 90 - plane.pitch) / 360 * 6.28) * sin(((double) plane.yaw) / 360 * 6.28) * 0.1;
-    plane.position.y = plane.position.y - cos(((double) 90 - plane.pitch) / 360 * 6.28) * 0.1;
+
+    float cosP = cos((90.0 - (double) plane.pitch) / 360 * 6.28);
+    float sinP = sin((90.0 - (double) plane.pitch) / 360 * 6.28);
+
+    float cosY = cos((double) plane.yaw / 360 * 6.28);
+    float sinY = sin((double) plane.yaw / 360 * 6.28);
+
+    plane.position.y = plane.position.y - velocity * cosP;
+    plane.position.z = plane.position.z + velocity * sinP * cosY;
+    plane.position.x = plane.position.x + velocity * sinP * sinY;
+
 
     glTranslatef(plane.position.x, plane.position.y, plane.position.z);
+
+
     glRotatef(plane.yaw, 0, 1, 0);
     glRotatef(plane.pitch, 1, 0, 0);
+    glRotatef(plane.roll, 0, 0, 1);
 //    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
 //    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
