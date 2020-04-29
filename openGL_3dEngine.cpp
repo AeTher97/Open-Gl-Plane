@@ -523,9 +523,9 @@ void draw() {
     //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
     glTranslatef(0, 1, 0);
-//    rysujModel("teren"); // malowanie pod³o¿a
+   // rysujModel("teren"); // malowanie pod³o¿a
     rysujModel("niebo"); // malowanie nieba
-    glPopMatrix();
+
 
 
     // MODELE 3ds:
@@ -535,7 +535,6 @@ void draw() {
 
     // przyklad:
 
-    glPushMatrix();
 
 
     float cosP = cos((90.0 - (double) plane.pitch) / 360 * 6.28);
@@ -555,14 +554,14 @@ void draw() {
     glRotatef(plane.yaw, 0, 1, 0);
     glRotatef(plane.pitch, 1, 0, 0);
     glRotatef(plane.roll, 0, 0, 1);
+
+    rysujModel("cesna_tex");
 //    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
 //    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
     glScalef(5, 5, 5);
+    glColor3f(255, 255, 255);
 
-    rysujModel("cesna");
-
-    glPopMatrix();
 //    plane.changePosition();
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
@@ -570,6 +569,7 @@ void draw() {
 
 
 
+    glPopMatrix();
 
 
 //    glPushMatrix();
