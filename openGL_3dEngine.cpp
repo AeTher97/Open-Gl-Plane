@@ -118,7 +118,7 @@ int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
 
-auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.05);
+auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.2);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -302,6 +302,7 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
             break;
         case '-':
             plane.decreaseVelocity();
+
             break;
         case '7':
             plane.yaw += 15.0 * cos((double) plane.roll / 360 * 6.28);
@@ -543,9 +544,9 @@ void draw() {
     float cosY = cos((double) plane.yaw / 360 * 6.28);
     float sinY = sin((double) plane.yaw / 360 * 6.28);
 
-    plane.position.y = plane.position.y - velocity * cosP;
-    plane.position.z = plane.position.z + velocity * sinP * cosY;
-    plane.position.x = plane.position.x + velocity * sinP * sinY;
+    plane.position.y = plane.position.y - plane.getVelocity() * cosP;
+    plane.position.z = plane.position.z + plane.getVelocity() * sinP * cosY;
+    plane.position.x = plane.position.x + plane.getVelocity() * sinP * sinY;
 
 
     glTranslatef(plane.position.x, plane.position.y, plane.position.z);

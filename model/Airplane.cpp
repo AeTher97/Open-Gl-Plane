@@ -21,7 +21,7 @@ namespace airplane{
 
     void Airplane::decreaseVelocity() {
         if(velocity - velocityStep > 0)
-            velocity -+velocityStep;
+            velocity -= velocityStep;
     }
 
     ThreeDimension::Vector Airplane::getPosition() {
