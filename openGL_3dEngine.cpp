@@ -46,78 +46,6 @@ double kameraPredkoscObrotu;
 #define MIN_DYSTANS 0.5            // minimalny dystans od brzegu obszaru ograniczenia kamery
 double obszarKamery = 0;
 
-
-float velocity = 1.0f;
-#define _DEFINICJE
-
-// DEFINICJE ZMIENNYCH
-
-// w tablicy s¹ pozycje drzew i krzewów: {x,y,z,rotacjaY}
-float drzewa1[12][4] = {{-110, -8,  130,  16},
-                        {-90,  -8,  145,  96},
-                        {-150, -8,  -60,  158},
-                        {-140, -8,  -90,  138},
-                        {30,   -6,  -80,  70},
-                        {-43,  -16, -120, -70},
-                        {20,   -8,  80,   180},
-                        {30,   -8,  30,   80},
-                        {35,   -8,  160,  50},
-                        {40,   -8,  130,  0},
-                        {133,  -8,  29,   210},
-                        {128,  -16, -70,  110}};
-float drzewa2[12][4] = {{-120, -17, 100,  16},
-                        {-95,  -8,  70,   76},
-                        {-135, -8,  -10,  158},
-                        {-148, -15, 10,   128},
-                        {-10,  -10, -40,  70},
-                        {-20,  -8,  40,   20},
-                        {30,   -8,  130,  80},
-                        {80,   -8,  160,  180},
-                        {110,  -8,  140,  0},
-                        {140,  -8,  150,  100},
-                        {81,   -8,  -90,  140},
-                        {119,  -8,  -140, 210}};
-float drzewa3[12][4] = {{-99,  -8, 110,  16},
-                        {-151, -8, 72,   76},
-                        {-145, -8, -30,  178},
-                        {-128, -8, 40,   128},
-                        {-140, 1,  -140, 170},
-                        {-23,  -8, 75,   20},
-                        {15,   -8, 120,  80},
-                        {100,  -8, 138,  180},
-                        {115,  -8, 120,  0},
-                        {98,   -8, 50,   100},
-                        {83,   -8, -110, 110},
-                        {111,  -8, -134, 210}};
-float krzaki[12][4] = {{-181, 43, -64, 100},
-                       {-104, -6, 40,  90},
-                       {-138, -7, -60, 40},
-                       {-113, -5, -70, 76},
-                       {-8,   -8, -80, 320},
-                       {20,   -5, 53,  170},
-                       {-39,  11, -53, 120},
-                       {30,   -8, 140, 10},
-                       {80,   7,  100, 40},
-                       {120,  -8, 45,  206},
-                       {140,  1,  -23, 6},
-                       {101,  -8, 110, 146}};
-
-int animacjaLisci = 0;
-float posx = 0;
-float posy = 0;
-
-float mgla = 0;
-
-int zmienna = 0;
-
-
-float lawkaPozycja = 0;
-float lawkaPredkosc = 0;
-
-int iterator = 0;
-/******************************************************/
-bool rysujLawke = true;
-
 auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.2);
 
 
@@ -182,8 +110,6 @@ void rejestrujPrzeszkode(double X1, double Z1, double X2, double Z2) {
     obszarPrzeszkody = pom;
 }
 
-/** OBSLUGA INTERAKCJI Z UZYTKOWNIKIEM **/
-
 void SzablonPrzyciskMyszyWcisniety(int button, int state, int x, int y) {
     switch (state) {
         case GLUT_UP:
@@ -226,56 +152,18 @@ void SzablonKlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
 
 }
 
-/*
-
- C++ przez OpenGL - szablon do æwiczeñ laboratoryjnych
- (C) Micha³ Turek.
-
-*/
-
-
-
-/******************* SZABLON **************************/
-
-// DEFINICJE FUNKCJI OBS£UGUJ¥CYCH ZDARZENIA MYSZY I KLAWIATURY
-
 void PrzyciskMyszyWcisniety(int button, int state, int x, int y) {
     SzablonPrzyciskMyszyWcisniety(button, state, x, y); // wywolanie standardowej obslugi zdarzen szablonu
-
-
-    //*************************************************************
-    // tu mo¿na umieciæ kod obs³uguj¹cy wciniêcie przycisku myszy
-
-
-
-
-
-
-
-
-
 }
 
 void RuchKursoraMyszy(int x, int y) {
     SzablonRuchKursoraMyszy(x, y); // wywolanie standardowej obslugi zdarzen szablonu
-
-    //****************************************************
-    //tu mo¿na umieciæ kod obs³uguj¹cy ruch kursora myszy
-
-
-
-
-
-
-
 }
+
+void resetAirplaneModel();
 
 void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
     SzablonKlawiszKlawiaturyWcisniety(key, x, y);    // wywolanie standardowej obslugi zdarzen szablonu
-
-    //*******************************************************************************
-    // tu mo¿na umieciæ kod obs³uguj¹cy wciniêcie klawisza klawiatury, przyk³adowo:
-
     switch (key) {
         case 'e':
             glEnable(GL_FOG);
@@ -283,26 +171,16 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
         case 'd':
             glDisable(GL_FOG);
             break;
-
-        case 'n':
-            rysujLawke = false;
-            break;
         case 'r':
-            rysujLawke = true;
+            resetAirplaneModel();
             break;
 
-        case 'p':
-            lawkaPredkosc += 0.04;
-            break;
-        case 'o':
-            lawkaPredkosc -= 0.04;
-            break;
+            //airplane control buttons
         case '+':
             plane.increaseVelocity();
             break;
         case '-':
             plane.decreaseVelocity();
-
             break;
         case '7':
             plane.yaw += 15.0 * cos((double) plane.roll / 360 * 6.28);
@@ -340,17 +218,15 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
             }
             break;
 
-
     }
+}
 
-
+void resetAirplaneModel() {
+    plane.reset();
 }
 
 
 void KlawiszSpecjalnyWcisniety(GLint key, int x, int y) {
-
-    //*******************************************************************************
-    // tu mo¿na umieciæ kod obs³uguj¹cy wciniêcie specjalnego klawisza klawiatury, przyk³adowo:
 
     switch (key) {
         case GLUT_KEY_LEFT:
@@ -365,10 +241,7 @@ void KlawiszSpecjalnyWcisniety(GLint key, int x, int y) {
         case GLUT_KEY_DOWN:
             kameraY--;
             break;
-
     }
-
-
 }
 
 
@@ -433,15 +306,14 @@ void rozmiarPrawe(int width, int height) {
     glutSetWindow(oknoPrawe);
     rozmiar(width, height);
 }
-
-/** ZARZADANIE SKLADEM MODELI 3DS **/
-
 struct model_w_skladzie {
     char *filename;
     model3DS *model;
     struct model_w_skladzie *wsk;
 };
 struct model_w_skladzie *sklad_modeli = NULL;
+
+void drawCesnaModel();
 
 void dodajModel(model3DS *_model, char *file_name) {
     struct model_w_skladzie *tmp;
@@ -507,36 +379,26 @@ void ladujModele() {
             printf("[3DS] Model '%s' stored\n", fd->cFileName);
         } while (FindNextFile(fh, fd));
 }
-
-/**********************************************************
- 		RYSOWANIE TRESCI RAMKI
- *********************************************************/
-
-
 void draw() {
 
     glDisable(GL_FOG);
-    // TEREN
-    // Tekstura podloza jest zapisana w pliku "data/podloze.bmp", definiowana bezpoœrednio w 3ds.
-    // Wymagany format pliku: bmp, 24 bity na pixel.
 
     //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
     glTranslatef(0, 1, 0);
    // rysujModel("teren"); // malowanie pod³o¿a
     rysujModel("niebo"); // malowanie nieba
+    glPopMatrix();
 
 
 
-    // MODELE 3ds:
-    // Modele 3ds znajdujace sie w katalogu /data s¹ autoamtycznie ladowane i rejestrowane pod nazwami zbieznymi z nazwami plikow
-    // Aby narysowaæ model nalezy wywo³aæ funkcjê: rysujModel ("nazwa_modelu");
-    // Nazwa_modelu mo¿e byæ podana literemi du¿ymi lub ma³ymi, z rozszerzeniem pliku lub bez.
-
-    // przyklad:
+    drawCesnaModel();
 
 
+}
 
+void drawCesnaModel() {
+    glPushMatrix();
     float cosP = cos((90.0 - (double) plane.pitch) / 360 * 6.28);
     float sinP = sin((90.0 - (double) plane.pitch) / 360 * 6.28);
 
@@ -556,60 +418,10 @@ void draw() {
     glRotatef(plane.roll, 0, 0, 1);
 
     rysujModel("cesna_tex");
-//    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
-//    glRotatef(plane.yRotate, 0, 1, 0);
-//    glRotatef(-42, 0, 1, 0);
+
     glScalef(5, 5, 5);
     glColor3f(255, 255, 255);
-
-//    plane.changePosition();
-    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
-
-
-
-
     glPopMatrix();
-
-
-//    glPushMatrix();
-//    glTranslatef(-25, -7, 120);
-//    glRotatef(90, 0, 1, 0);
-//    rysujModel("latarnia");
-//    glPopMatrix();
-//
-//    glPushMatrix();
-//    glTranslatef(120, -5.5, -103);
-//    glRotatef(-86, 0, 1, 0);
-//    rysujModel("lawka");
-//    glPopMatrix();
-//
-//    glPushMatrix();
-//    glTranslatef(-149, 50, -133);
-//    glRotatef(-33, 0, 1, 0);
-//    rysujModel("most");
-//    glPopMatrix();
-
-
-    // Tu (na koñcu) rysowanie obiektów BLEND
-
-//    glPushMatrix();
-//    glEnable(GL_BLEND);
-//    glDepthMask(GL_FALSE);
-//    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-//    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
-//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
-//    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
-//    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
-//    glTranslatef(105, -6.7, -103);
-//    rysujModel("woda");
-//    glDepthMask(GL_TRUE);
-//    glDisable(GL_BLEND);
-//    glPopMatrix();
-
-    /******************************************************/
-
-
 }
 
 void rysujRamke(bool prawa) {
@@ -777,7 +589,6 @@ int main(int argc, char **argv) {
     else
         glutTimerFunc(10, syncTimer, 10);
     resetKamery();
-    //srand( (unsigned)time( NULL ) ); // generator liczb losowych
     ladujModele();
     aktywujSpecjalneRenderowanieModelu("woda", 1);
     aktywujSpecjalneRenderowanieModelu("most", 2);

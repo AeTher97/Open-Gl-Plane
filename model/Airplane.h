@@ -21,6 +21,7 @@ namespace airplane {
         int roll, yaw, pitch = 0;
         ThreeDimension::Vector getPosition();
         void changePosition();
+        void reset();
         float getVelocity();
         void increaseVelocity();
         void decreaseVelocity();

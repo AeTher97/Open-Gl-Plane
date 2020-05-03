@@ -32,4 +32,12 @@ namespace airplane{
         position.changeVector(0,0, velocity);
     }
 
+    void Airplane::reset() {
+        this->position = ThreeDimension::Vector(0.0f, 0.0f, 0.0f);
+        this->velocity = 0.1;
+        this->roll = 0;
+        this->pitch = 0;
+        this->yaw = 0;
+    }
+
 }
