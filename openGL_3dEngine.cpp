@@ -578,10 +578,10 @@ void draw() {
 
     //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
-    glTranslatef(0, 1, 0);
-    // rysujModel("teren"); // malowanie pod³o¿a
+    glTranslatef(0, -200, 0);
+    rysujModel("teren"); // malowanie pod³o¿a
     rysujModel("niebo"); // malowanie nieba
-
+    glPopMatrix();
 
 
     // MODELE 3ds:
