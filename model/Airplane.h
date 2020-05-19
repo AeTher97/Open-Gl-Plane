@@ -12,18 +12,69 @@ namespace airplane {
     class Airplane {
     private:
         const float velocityStep = 0.1;
-        ThreeDimension::Vector translationVector = ThreeDimension::Vector(0.0f,0.0f,0.0f);
-        float velocity = 0;
+        ThreeDimension::Vector translationVector = ThreeDimension::Vector(0.0f, 0.0f, 0.0f);
+
         int flaps = 0;
     public:
         Airplane(ThreeDimension::Vector startPosition, float startVelocity);
+
         ThreeDimension::Vector position = ThreeDimension::Vector(0.0f, 0.0f, 0.0f);
-        int roll, yaw, pitch = 0;
-        ThreeDimension::Vector getPosition();
-        void changePosition();
+        float velocity = 0;
+        float maxVelocity = 1.0;
+        float minVelocity = 0.2;
+
+
+        float tailVerticalAngle = 0.0;
+        float maxTailVerticalAngle = 30.0;
+        int idleTailVerticalAngleChange = 0;
+
+        float tailHorizontalAngle = 0.0;
+        float maxTailHorizontalAngle = 30.0;
+        int idleTailHorizontalAngleChange = 0;
+
+        float flapsAngle = 0.0;
+        float maxFlapsAngle = 20.0;
+
+
+        float aileronAngle = 0.0;
+        float maxAileronAngle = 30.0;
+        int idleAileronAngleChange = 0;
+
+        float roll, yaw, pitch = 0;
+
         float getVelocity();
+
         void increaseVelocity();
+
         void decreaseVelocity();
+
+        void increaseTailHorizontalAngle();
+
+        void decreaseTailHorizontalAngle();
+
+        void negateTailHorizontalAngle();
+
+        void resetHorizontalAngleIdle();
+
+
+        void increaseTailVerticalAngle();
+
+        void decreaseTailVerticalAngle();
+
+        void negateTailVerticalAngle();
+
+        void resetVerticalAngleIdle();
+
+        void increaseAileronAngle();
+
+        void decreaseAileronAngle();
+
+        void negateAileronAngle();
+
+        void resetAileronIdle();
+
+        void update();
+
     };
 }
 

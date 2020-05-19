@@ -46,8 +46,15 @@ double kameraPredkoscObrotu;
 #define MIN_DYSTANS 0.5            // minimalny dystans od brzegu obszaru ograniczenia kamery
 double obszarKamery = 0;
 
+double planeCameraX;
+double planeCameraY;
+double planeCameraZ;
 
-float velocity = 1.0f;
+double planeToX;
+double planeToY;
+double planeToZ;
+
+
 #define _DEFINICJE
 
 // DEFINICJE ZMIENNYCH
@@ -118,7 +125,7 @@ int iterator = 0;
 /******************************************************/
 bool rysujLawke = true;
 
-auto plane = Airplane(ThreeDimension::Vector(0.0f, 0.0f, 0.0f), 0.2);
+auto plane = Airplane(ThreeDimension::Vector(1.0f, 0.0f, 0.0f), 0.3);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -268,6 +275,7 @@ void RuchKursoraMyszy(int x, int y) {
 
 
 
+
 }
 
 void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
@@ -302,42 +310,24 @@ void KlawiszKlawiaturyWcisniety(GLubyte key, int x, int y) {
             break;
         case '-':
             plane.decreaseVelocity();
-
             break;
         case '7':
-            plane.yaw += 15.0 * cos((double) plane.roll / 360 * 6.28);
-            plane.pitch -= 15.0 * sin((double) plane.roll / 360 * 6.28);
+            plane.decreaseTailVerticalAngle();
             break;
         case '9':
-            plane.yaw -= 15.0 * cos((double) plane.roll / 360 * 6.28);
-            plane.pitch += 15.0 * sin((double) plane.roll / 360 * 6.28);
+            plane.increaseTailVerticalAngle();
             break;
         case '8':
-            plane.pitch += 15.0 * cos((double) plane.roll / 360 * 6.28);
-            plane.yaw += 15.0 * sin((double) plane.roll / 360 * 6.28);
-            if (plane.pitch < -360) {
-                plane.pitch += 360;
-            }
+            plane.decreaseTailHorizontalAngle();
             break;
         case '2':
-            plane.pitch -= 15.0 * cos((double) plane.roll / 360 * 6.28);
-            plane.yaw -= 15.0 * sin((double) plane.roll / 360 * 6.28);
-            if (plane.pitch > 360) {
-                plane.pitch -= 360;
-            }
+            plane.increaseTailHorizontalAngle();
             break;
         case '4':
-            plane.roll -= 15;
-            if (plane.roll < -360) {
-                plane.roll += 360;
-            }
-
+            plane.increaseAileronAngle();
             break;
         case '6':
-            plane.roll += 15;
-            if (plane.roll > 360) {
-                plane.roll -= 360;
-            }
+            plane.decreaseAileronAngle();
             break;
 
 
@@ -512,6 +502,72 @@ void ladujModele() {
  		RYSOWANIE TRESCI RAMKI
  *********************************************************/
 
+void translateToPlanePosition() {
+    glTranslatef(plane.position.x, plane.position.y, plane.position.z);
+
+
+    glRotatef(plane.yaw, 0, 1, 0);
+    glRotatef(plane.pitch, 1, 0, 0);
+    glRotatef(plane.roll, 0, 0, 1);
+}
+
+void drawPlane() {
+    glPushMatrix();
+    translateToPlanePosition();
+    rysujModel("cesna_test");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(-0.1, 0.4, -1.2);
+    glRotatef(plane.tailVerticalAngle, 0, 1, -0.6);
+    rysujModel("k");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(0.41, 0, -0.75);
+    glRotatef(plane.tailHorizontalAngle, 1, 0, 0);
+    rysujModel("w_l");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(-0.61, 0, -0.75);
+    glRotatef(plane.tailHorizontalAngle, 1, 0, 0);
+    rysujModel("w_p");
+    glPopMatrix();
+
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(2.01, 0.38, 1.25);
+    glRotatef(plane.aileronAngle, 1, 0, 0);
+    rysujModel("l_l");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(-2.21, 0.38, 1.25);
+    glRotatef(-plane.aileronAngle, 1, 0, 0);
+    rysujModel("l_p");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(0.72, 0.38, 1.16);
+    glRotatef(-plane.flapsAngle, 1, 0, 0);
+    rysujModel("k_l");
+    glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    glTranslatef(-0.91, 0.38, 1.16);
+    glRotatef(-plane.flapsAngle, 1, 0, 0);
+    rysujModel("k_p");
+    glPopMatrix();
+}
+
 
 void draw() {
 
@@ -523,7 +579,7 @@ void draw() {
     //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glPushMatrix();
     glTranslatef(0, 1, 0);
-   // rysujModel("teren"); // malowanie pod³o¿a
+    // rysujModel("teren"); // malowanie pod³o¿a
     rysujModel("niebo"); // malowanie nieba
 
 
@@ -547,15 +603,18 @@ void draw() {
     plane.position.z = plane.position.z + plane.getVelocity() * sinP * cosY;
     plane.position.x = plane.position.x + plane.getVelocity() * sinP * sinY;
 
+    planeCameraY = plane.position.y;
+    planeCameraZ = plane.position.z - 20 * sinP * cosY;
+    planeCameraX = plane.position.x - 20 * sinP * sinY;
 
-    glTranslatef(plane.position.x, plane.position.y, plane.position.z);
+    planeToY = plane.position.y;
+    planeToZ = plane.position.z + 20 * sinP * cosY;
+    planeToX = plane.position.x + 20 * sinP * sinY;
 
 
-    glRotatef(plane.yaw, 0, 1, 0);
-    glRotatef(plane.pitch, 1, 0, 0);
-    glRotatef(plane.roll, 0, 0, 1);
+    plane.update();
 
-    rysujModel("cesna_tex");
+    drawPlane();
 //    glTranslatef(plane.getPosition().getXValue(), plane.getPosition().getYValue(), plane.getPosition().getZValue());
 //    glRotatef(plane.yRotate, 0, 1, 0);
 //    glRotatef(-42, 0, 1, 0);
@@ -617,8 +676,11 @@ void rysujRamke(bool prawa) {
     glLoadIdentity();
     switch (stereoTryb) {
         case 0: // zwykle mono
-            gluLookAt(kameraX, kameraY, kameraZ, kameraX + 100 * sin(kameraKat), 3 + kameraPunktY,
-                      kameraZ - 100 * cos(kameraKat), 0, 1, 0); // kamera
+//            gluLookAt(kameraX, kameraY, kameraZ, kameraX + 100 * sin(kameraKat), 3 + kameraPunktY,
+//                      kameraZ - 100 * cos(kameraKat), 0, 1, 0); // kamera
+
+            gluLookAt(planeCameraX, planeCameraY, planeCameraZ, planeToX, planeToY,
+                      planeToZ, 0, 1, 0); // kamera
             break;
         case 1: // 3D-ready
         case 2: // pelne stereo
