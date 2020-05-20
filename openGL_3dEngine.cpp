@@ -512,10 +512,6 @@ void translateToPlanePosition() {
 }
 
 void drawPlane() {
-    glPushMatrix();
-    translateToPlanePosition();
-    rysujModel("cesna_test");
-    glPopMatrix();
 
     glPushMatrix();
     translateToPlanePosition();
@@ -566,6 +562,12 @@ void drawPlane() {
     glRotatef(-plane.flapsAngle, 1, 0, 0);
     rysujModel("k_p");
     glPopMatrix();
+
+    glPushMatrix();
+    translateToPlanePosition();
+    rysujModel("cesna");
+    glPopMatrix();
+
 }
 
 
@@ -576,7 +578,7 @@ void draw() {
     // Tekstura podloza jest zapisana w pliku "data/podloze.bmp", definiowana bezpoœrednio w 3ds.
     // Wymagany format pliku: bmp, 24 bity na pixel.
 
-    //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glPushMatrix();
     glTranslatef(0, -200, 0);
     rysujModel("teren"); // malowanie pod³o¿a
@@ -631,42 +633,6 @@ void draw() {
     glPopMatrix();
 
 
-//    glPushMatrix();
-//    glTranslatef(-25, -7, 120);
-//    glRotatef(90, 0, 1, 0);
-//    rysujModel("latarnia");
-//    glPopMatrix();
-//
-//    glPushMatrix();
-//    glTranslatef(120, -5.5, -103);
-//    glRotatef(-86, 0, 1, 0);
-//    rysujModel("lawka");
-//    glPopMatrix();
-//
-//    glPushMatrix();
-//    glTranslatef(-149, 50, -133);
-//    glRotatef(-33, 0, 1, 0);
-//    rysujModel("most");
-//    glPopMatrix();
-
-
-    // Tu (na koñcu) rysowanie obiektów BLEND
-
-//    glPushMatrix();
-//    glEnable(GL_BLEND);
-//    glDepthMask(GL_FALSE);
-//    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-//    GLfloat mat1[4] = {0.5, 0.4, 0.7, 1};
-//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat1);
-//    glMaterialfv(GL_FRONT, GL_AMBIENT, mat1);
-//    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat1);
-//    glTranslatef(105, -6.7, -103);
-//    rysujModel("woda");
-//    glDepthMask(GL_TRUE);
-//    glDisable(GL_BLEND);
-//    glPopMatrix();
-
-    /******************************************************/
 
 
 }
