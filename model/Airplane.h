@@ -20,8 +20,8 @@ namespace airplane {
 
         ThreeDimension::Vector position = ThreeDimension::Vector(0.0f, 0.0f, 0.0f);
         float velocity = 0;
-        float maxVelocity = 1.0;
-        float minVelocity = 0.2;
+        float maxVelocity = 1.5;
+        float minVelocity = 0.3;
 
 
         float tailVerticalAngle = 0.0;

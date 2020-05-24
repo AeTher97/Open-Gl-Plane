@@ -9,6 +9,7 @@
 #include "GL/glut.h"
 #include "include/model3DS.h"
 #include "model/Airplane.h"
+#include "model/Wind.h"
 #include <time.h>
 #include <direct.h>
 #include <GL/glu.h>
@@ -126,6 +127,7 @@ int iterator = 0;
 bool rysujLawke = true;
 
 auto plane = Airplane(ThreeDimension::Vector(1.0f, 0.0f, 0.0f), 0.3);
+auto wind = Wind(ThreeDimension::Vector(1.0f, 0.0f, 2.1f),0.1f);
 
 
 /** REJESTRATOR PRZESZKOD **/
@@ -505,7 +507,6 @@ void ladujModele() {
 void translateToPlanePosition() {
     glTranslatef(plane.position.x, plane.position.y, plane.position.z);
 
-
     glRotatef(plane.yaw, 0, 1, 0);
     glRotatef(plane.pitch, 1, 0, 0);
     glRotatef(plane.roll, 0, 0, 1);
@@ -586,15 +587,6 @@ void draw() {
     glPopMatrix();
 
 
-    // MODELE 3ds:
-    // Modele 3ds znajdujace sie w katalogu /data s¹ autoamtycznie ladowane i rejestrowane pod nazwami zbieznymi z nazwami plikow
-    // Aby narysowaæ model nalezy wywo³aæ funkcjê: rysujModel ("nazwa_modelu");
-    // Nazwa_modelu mo¿e byæ podana literemi du¿ymi lub ma³ymi, z rozszerzeniem pliku lub bez.
-
-    // przyklad:
-
-
-
     float cosP = cos((90.0 - (double) plane.pitch) / 360 * 6.28);
     float sinP = sin((90.0 - (double) plane.pitch) / 360 * 6.28);
 
@@ -602,8 +594,8 @@ void draw() {
     float sinY = sin((double) plane.yaw / 360 * 6.28);
 
     plane.position.y = plane.position.y - plane.getVelocity() * cosP;
-    plane.position.z = plane.position.z + plane.getVelocity() * sinP * cosY;
-    plane.position.x = plane.position.x + plane.getVelocity() * sinP * sinY;
+    plane.position.z = plane.position.z + plane.getVelocity() * sinP * cosY + wind.getZWindMove();
+    plane.position.x = plane.position.x + plane.getVelocity() * sinP * sinY + wind.getXWindMove();
 
     planeCameraY = plane.position.y;
     planeCameraZ = plane.position.z - 20 * sinP * cosY;
